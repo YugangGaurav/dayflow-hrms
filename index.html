@@ -1,0 +1,774 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAYFLOW — Every workday, perfectly aligned.</title>
+<style>
+:root {
+  --primary: #4f46e5; --primary-light: #eef2ff; --primary-dark: #3730a3;
+  --primary-50: #eef2ff; --primary-100: #e0e7ff; --primary-200: #c7d2fe;
+  --primary-500: #6366f1; --primary-600: #4f46e5; --primary-700: #4338ca;
+  --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1; --slate-400: #94a3b8; --slate-500: #64748b;
+  --slate-600: #475569; --slate-700: #334155; --slate-800: #1e293b; --slate-900: #0f172a;
+  --green-50: #ecfdf5; --green-500: #10b981; --green-600: #059669; --green-700: #047857;
+  --amber-50: #fffbeb; --amber-500: #f59e0b; --amber-600: #d97706; --amber-700: #b45309;
+  --red-50: #fef2f2; --red-500: #ef4444; --red-600: #dc2626; --red-700: #b91c1c;
+  --blue-50: #eff6ff; --blue-500: #3b82f6; --blue-600: #2563eb;
+  --radius: 8px; --radius-lg: 12px; --radius-xl: 16px;
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.06),0 2px 4px -2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.06),0 4px 6px -4px rgba(0,0,0,0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.06),0 8px 10px -6px rgba(0,0,0,0.04);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',system-ui,sans-serif;background:var(--slate-50);color:var(--slate-800);line-height:1.5;font-size:14px;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+input[name="page"],input[name="copilot"],input[name="cmd"]{position:absolute;opacity:0;pointer-events:none}
+.page{display:none}
+#p-login:checked~.app .page-login{display:flex}
+#p-signup:checked~.app .page-signup{display:flex}
+#p-verify:checked~.app .page-verify{display:flex}
+#p-forgot:checked~.app .page-forgot{display:flex}
+#p-emp-dash:checked~.app .page-emp-dash{display:block}
+#p-profile:checked~.app .page-profile{display:block}
+#p-attendance:checked~.app .page-attendance{display:block}
+#p-leave:checked~.app .page-leave{display:block}
+#p-payroll:checked~.app .page-payroll{display:block}
+#p-documents:checked~.app .page-documents{display:block}
+#p-notifications:checked~.app .page-notifications{display:block}
+#p-hr-dash:checked~.app .page-hr-dash{display:block}
+#p-employees:checked~.app .page-employees{display:block}
+#p-hr-leave:checked~.app .page-hr-leave{display:block}
+#p-hr-payroll:checked~.app .page-hr-payroll{display:block}
+#p-reports:checked~.app .page-reports{display:block}
+#p-announcements:checked~.app .page-announcements{display:block}
+#p-audit:checked~.app .page-audit{display:block}
+
+#p-login:checked~.app .shell,#p-signup:checked~.app .shell,#p-verify:checked~.app .shell,#p-forgot:checked~.app .shell{display:none}
+#p-login:checked~.app .auth-wrap,#p-signup:checked~.app .auth-wrap,#p-verify:checked~.app .auth-wrap,#p-forgot:checked~.app .auth-wrap{display:flex}
+.auth-wrap{display:none}
+
+#p-emp-dash:checked~.app .n-emp-dash,#p-profile:checked~.app .n-profile,#p-attendance:checked~.app .n-attendance,
+#p-leave:checked~.app .n-leave,#p-payroll:checked~.app .n-payroll,#p-documents:checked~.app .n-documents,
+#p-notifications:checked~.app .n-notifications,#p-hr-dash:checked~.app .n-hr-dash,#p-employees:checked~.app .n-employees,
+#p-hr-leave:checked~.app .n-hr-leave,#p-hr-payroll:checked~.app .n-hr-payroll,#p-reports:checked~.app .n-reports,
+#p-announcements:checked~.app .n-announcements,#p-audit:checked~.app .n-audit{background:var(--primary-50);color:var(--primary-700);font-weight:500}
+
+#copilot-toggle:checked~.app .copilot-panel{transform:translateX(0)}
+#copilot-toggle:checked~.app .copilot-overlay{display:block}
+#cmd-toggle:checked~.app .cmd-wrap{display:flex}
+
+.auth-wrap{min-height:100vh;align-items:center;justify-content:center;background:var(--slate-50);padding:24px;position:relative}
+.auth-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(135deg,var(--primary-50),var(--slate-50));z-index:0}
+.auth-card{position:relative;z-index:1;background:#fff;border-radius:var(--radius-xl);padding:40px;width:100%;max-width:400px;box-shadow:var(--shadow-xl);border:1px solid var(--slate-200)}
+.auth-brand{text-align:center;margin-bottom:28px}
+.auth-brand .logo{font-size:24px;font-weight:800;color:var(--primary);letter-spacing:-0.5px}
+.auth-brand .tagline{font-size:12px;color:var(--slate-400);margin-top:4px;letter-spacing:0.3px}
+.auth-title{font-size:18px;font-weight:600;color:var(--slate-900);text-align:center;margin-bottom:4px}
+.auth-sub{font-size:13px;color:var(--slate-500);text-align:center;margin-bottom:24px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:500;color:var(--slate-700);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;padding:10px 12px;border:1px solid var(--slate-200);border-radius:var(--radius);font-size:14px;color:var(--slate-800);background:#fff;outline:none;transition:all .15s ease;font-family:inherit}
+.field input:hover,.field select:hover,.field textarea:hover{border-color:var(--slate-300)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-50)}
+.field input::placeholder,.field textarea::placeholder{color:var(--slate-400)}
+.field textarea{resize:vertical;min-height:80px}
+.form-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.form-check{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--slate-500);cursor:pointer}
+.form-check input{accent-color:var(--primary)}
+.link{font-size:12px;color:var(--primary);cursor:pointer;font-weight:500}
+.link:hover{text-decoration:underline}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 18px;border-radius:var(--radius);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s ease;border:none;font-family:inherit;text-decoration:none}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 1px 2px rgba(79,70,229,.2)}
+.btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px);box-shadow:0 4px 8px rgba(79,70,229,.2)}
+.btn-secondary{background:#fff;color:var(--slate-700);border:1px solid var(--slate-200)}
+.btn-secondary:hover{background:var(--slate-50);border-color:var(--slate-300)}
+.btn-success{background:var(--green-600);color:#fff}
+.btn-success:hover{background:var(--green-700)}
+.btn-danger{background:var(--red-600);color:#fff}
+.btn-danger:hover{background:var(--red-700)}
+.btn-ghost{background:transparent;color:var(--slate-600)}
+.btn-ghost:hover{background:var(--slate-100)}
+.btn-full{width:100%}
+.btn-sm{padding:6px 12px;font-size:12px}
+.auth-footer{text-align:center;margin-top:20px;font-size:13px;color:var(--slate-500)}
+.auth-footer label{color:var(--primary);cursor:pointer;font-weight:500}
+.auth-footer label:hover{text-decoration:underline}
+.auth-notice{margin-top:16px;padding:12px;background:var(--slate-50);border-radius:var(--radius);font-size:11px;color:var(--slate-500);text-align:center;line-height:1.5;border:1px solid var(--slate-100)}
+.pw-reqs{display:grid;grid-template-columns:1fr 1fr;gap:2px 12px;margin-top:6px;font-size:11px;color:var(--slate-400)}
+.pw-reqs span::before{content:'○ ';color:var(--slate-300)}
+.verify-icon{width:64px;height:64px;margin:0 auto 16px;background:var(--primary-50);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.verify-icon svg{width:28px;height:28px;color:var(--primary)}
+
+.shell{display:flex;min-height:100vh}
+.sidebar{width:260px;background:#fff;border-right:1px solid var(--slate-200);position:fixed;top:0;left:0;height:100vh;z-index:200;display:flex;flex-direction:column;overflow-y:auto}
+.sb-header{padding:20px 16px 16px;border-bottom:1px solid var(--slate-100)}
+.sb-brand{display:flex;align-items:center;gap:10px}
+.sb-icon{width:32px;height:32px;background:var(--primary);border-radius:var(--radius);display:flex;align-items:center;justify-content:center}
+.sb-icon svg{width:18px;height:18px;color:#fff}
+.sb-text .name{font-size:16px;font-weight:700;color:var(--slate-900);letter-spacing:-0.3px}
+.sb-text .sub{font-size:10px;color:var(--slate-400);text-transform:uppercase;letter-spacing:0.5px;font-weight:500}
+.sb-nav{flex:1;padding:12px 10px;overflow-y:auto}
+.nav-group{margin-bottom:20px}
+.nav-group-title{font-size:10px;font-weight:600;color:var(--slate-400);text-transform:uppercase;letter-spacing:0.06em;padding:0 12px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--radius);font-size:13px;color:var(--slate-600);cursor:pointer;transition:all .15s ease;margin-bottom:1px;font-weight:450}
+.nav-item:hover{background:var(--slate-100);color:var(--slate-800)}
+.nav-item svg{width:18px;height:18px;flex-shrink:0;opacity:.7}
+.nav-badge{margin-left:auto;background:var(--red-500);color:#fff;font-size:10px;font-weight:600;padding:1px 6px;border-radius:99px;min-width:18px;text-align:center}
+.sb-footer{padding:12px 14px;border-top:1px solid var(--slate-100)}
+.sb-user{display:flex;align-items:center;gap:10px;padding:8px;border-radius:var(--radius);cursor:pointer;transition:background .15s ease}
+.sb-user:hover{background:var(--slate-50)}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--primary-100);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--primary-700);flex-shrink:0}
+.avatar-lg{width:56px;height:56px;font-size:20px}
+.avatar-xl{width:72px;height:72px;font-size:26px}
+.sb-user-info{flex:1;min-width:0}
+.sb-user-info .uname{font-size:13px;font-weight:500;color:var(--slate-800);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-user-info .urole{font-size:11px;color:var(--slate-400)}
+.sb-logout{color:var(--slate-400);cursor:pointer;padding:4px;border-radius:4px}
+.sb-logout:hover{color:var(--red-500)}
+.sb-logout svg{width:16px;height:16px}
+
+.main{margin-left:260px;min-height:100vh;display:flex;flex-direction:column}
+.topbar{height:60px;background:#fff;border-bottom:1px solid var(--slate-200);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:100}
+.tb-left .page-title{font-size:16px;font-weight:600;color:var(--slate-900)}
+.tb-right{display:flex;align-items:center;gap:8px}
+.tb-search{display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--slate-50);border:1px solid var(--slate-200);border-radius:var(--radius);cursor:pointer;transition:all .15s ease}
+.tb-search:hover{border-color:var(--slate-300);background:#fff}
+.tb-search svg{width:15px;height:15px;color:var(--slate-400)}
+.tb-search span{font-size:12px;color:var(--slate-400)}
+.tb-search .kbd{font-size:10px;background:#fff;border:1px solid var(--slate-200);padding:1px 5px;border-radius:3px;color:var(--slate-400);margin-left:12px}
+.tb-btn{width:36px;height:36px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s ease;color:var(--slate-500);position:relative}
+.tb-btn:hover{background:var(--slate-100);color:var(--slate-700)}
+.tb-btn svg{width:19px;height:19px}
+.notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:var(--red-500);border-radius:50%;border:2px solid #fff}
+
+.content{flex:1;padding:28px}
+.page-head{margin-bottom:24px}
+.page-head h1{font-size:22px;font-weight:600;color:var(--slate-900);letter-spacing:-0.3px}
+.page-head p{font-size:14px;color:var(--slate-500);margin-top:2px}
+
+.card{background:#fff;border:1px solid var(--slate-200);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-xs);transition:box-shadow .15s ease}
+.card:hover{box-shadow:var(--shadow-sm)}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-head .title{font-size:14px;font-weight:600;color:var(--slate-800)}
+.card-head .action{font-size:12px;color:var(--primary);cursor:pointer;font-weight:500}
+.card-head .action:hover{text-decoration:underline}
+
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:#fff;border:1px solid var(--slate-200);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--shadow-xs);transition:all .2s ease}
+.stat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.stat-icon{width:36px;height:36px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.stat-icon svg{width:18px;height:18px}
+.stat-icon.indigo{background:var(--primary-50);color:var(--primary)}
+.stat-icon.green{background:var(--green-50);color:var(--green-600)}
+.stat-icon.amber{background:var(--amber-50);color:var(--amber-600)}
+.stat-icon.red{background:var(--red-50);color:var(--red-600)}
+.stat-icon.blue{background:var(--blue-50);color:var(--blue-600)}
+.stat-val{font-size:24px;font-weight:700;color:var(--slate-900);font-feature-settings:'tnum';letter-spacing:-0.5px}
+.stat-label{font-size:12px;color:var(--slate-500);margin-top:2px}
+.stat-delta{font-size:11px;display:flex;align-items:center;gap:3px;margin-top:6px}
+.stat-delta.up{color:var(--green-600)}
+.stat-delta.down{color:var(--red-600)}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px}
+
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:99px;font-size:11px;font-weight:500}
+.badge-green{background:var(--green-50);color:var(--green-700)}
+.badge-red{background:var(--red-50);color:var(--red-700)}
+.badge-amber{background:var(--amber-50);color:var(--amber-700)}
+.badge-blue{background:var(--blue-50);color:var(--blue-600)}
+.badge-gray{background:var(--slate-100);color:var(--slate-600)}
+.badge-indigo{background:var(--primary-50);color:var(--primary-700)}
+
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{text-align:left;font-size:11px;font-weight:600;color:var(--slate-500);padding:10px 14px;border-bottom:1px solid var(--slate-200);text-transform:uppercase;letter-spacing:.04em;background:var(--slate-50)}
+.data-table td{padding:11px 14px;font-size:13px;color:var(--slate-700);border-bottom:1px solid var(--slate-100)}
+.data-table tr:hover td{background:var(--slate-50)}
+.mono{font-feature-settings:'tnum';font-family:'SF Mono','Fira Code',monospace;font-size:12px}
+
+.progress{height:6px;background:var(--slate-100);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.progress-fill.indigo{background:var(--primary-500)}
+.progress-fill.green{background:var(--green-500)}
+.progress-fill.amber{background:var(--amber-500)}
+
+.tabs{display:flex;border-bottom:1px solid var(--slate-200);margin-bottom:20px;gap:0}
+.tab{padding:10px 18px;font-size:13px;font-weight:500;color:var(--slate-500);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s ease}
+.tab:hover{color:var(--slate-700)}
+.tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+
+.activity-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--slate-100)}
+.activity-item:last-child{border-bottom:none}
+.act-dot{width:8px;height:8px;border-radius:50%;margin-top:6px;flex-shrink:0}
+.act-dot.green{background:var(--green-500)}.act-dot.blue{background:var(--blue-500)}.act-dot.amber{background:var(--amber-500)}.act-dot.red{background:var(--red-500)}.act-dot.indigo{background:var(--primary-500)}
+.act-text{font-size:13px;color:var(--slate-700)}
+.act-time{font-size:11px;color:var(--slate-400);margin-top:2px}
+
+.chart-area{height:150px;display:flex;align-items:flex-end;gap:5px;padding:0 4px}
+.chart-bar{flex:1;border-radius:4px 4px 0 0;transition:all .15s ease;cursor:default}
+.chart-bar:hover{opacity:.8;filter:brightness(1.05)}
+.chart-bar.primary{background:var(--primary-500)}
+.chart-bar.light{background:var(--primary-200)}
+.chart-labels{display:flex;justify-content:space-between;margin-top:8px;font-size:10px;color:var(--slate-400)}
+
+.announcement{padding:14px 16px;border-left:3px solid var(--primary);background:var(--primary-50);border-radius:0 var(--radius) var(--radius) 0;margin-bottom:10px}
+.announcement.warn{border-left-color:var(--amber-500);background:var(--amber-50)}
+.announcement .a-title{font-size:13px;font-weight:600;color:var(--slate-800);margin-bottom:3px}
+.announcement .a-body{font-size:12px;color:var(--slate-600);line-height:1.4}
+.announcement .a-meta{font-size:11px;color:var(--slate-400);margin-top:6px}
+
+.action-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--radius);border:1px solid var(--slate-100);margin-bottom:8px;transition:all .15s ease}
+.action-item:hover{border-color:var(--primary-200);background:var(--primary-50)}
+.action-icon{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.action-icon svg{width:16px;height:16px}
+.action-icon.amber{background:var(--amber-50);color:var(--amber-600)}
+.action-icon.red{background:var(--red-50);color:var(--red-600)}
+.action-icon.blue{background:var(--blue-50);color:var(--blue-600)}
+.action-icon.indigo{background:var(--primary-50);color:var(--primary)}
+.action-text{flex:1}
+.action-text .al{font-size:13px;color:var(--slate-700);font-weight:450}
+.action-text .at{font-size:11px;color:var(--slate-400)}
+.action-btn{padding:5px 10px;font-size:11px;font-weight:500;color:var(--primary);background:#fff;border:1px solid var(--primary-200);border-radius:6px;cursor:pointer;transition:all .15s ease}
+.action-btn:hover{background:var(--primary);color:#fff}
+
+.dept-item{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.dept-name{font-size:12px;color:var(--slate-600);width:85px;flex-shrink:0}
+.dept-bar{flex:1;height:7px;background:var(--slate-100);border-radius:4px;overflow:hidden}
+.dept-fill{height:100%;border-radius:4px;background:var(--primary-500)}
+.dept-pct{font-size:11px;color:var(--slate-500);width:36px;text-align:right;font-feature-settings:'tnum'}
+
+.leave-card{padding:16px;border:1px solid var(--slate-200);border-radius:var(--radius-lg);transition:all .15s ease}
+.leave-card:hover{border-color:var(--primary-200);box-shadow:var(--shadow-sm)}
+.leave-card .lc-type{font-size:12px;font-weight:500;color:var(--slate-500);margin-bottom:8px}
+.leave-card .lc-num{font-size:22px;font-weight:700;color:var(--slate-900);font-feature-settings:'tnum'}
+.leave-card .lc-total{font-size:12px;color:var(--slate-400)}
+
+.att-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.att-cell{aspect-ratio:1;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;font-weight:500;transition:all .15s ease;cursor:default;gap:1px}
+.att-cell .dn{font-size:13px;font-weight:600}
+.att-cell .dl{font-size:9px;text-transform:uppercase;letter-spacing:.04em;opacity:.7}
+.att-cell.present{background:var(--green-50);color:var(--green-700)}
+.att-cell.absent{background:var(--red-50);color:var(--red-700)}
+.att-cell.leave{background:var(--amber-50);color:var(--amber-700)}
+.att-cell.half{background:var(--blue-50);color:var(--blue-600)}
+.att-cell.empty{background:var(--slate-50);color:var(--slate-300)}
+.att-cell.today{box-shadow:inset 0 0 0 2px var(--primary)}
+.att-cell:hover{transform:scale(1.06);box-shadow:var(--shadow-sm)}
+
+.filter-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.pill{padding:6px 14px;border-radius:99px;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s ease;border:1px solid var(--slate-200);color:var(--slate-600);background:#fff}
+.pill:hover{border-color:var(--primary-200);color:var(--primary)}
+.pill.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+.payslip-line{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--slate-100);font-size:13px}
+.payslip-line .pl{color:var(--slate-600)}.payslip-line .pa{font-weight:500;color:var(--slate-800);font-feature-settings:'tnum'}
+.payslip-line.total{border-top:2px solid var(--slate-200);border-bottom:none;padding-top:12px;margin-top:4px}
+.payslip-line.total .pl{font-weight:600;color:var(--slate-900)}.payslip-line.total .pa{font-weight:700;color:var(--primary);font-size:16px}
+
+.notif-item{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:var(--radius);transition:background .15s ease;border-bottom:1px solid var(--slate-100)}
+.notif-item:hover{background:var(--slate-50)}
+.notif-item.unread{background:var(--primary-50);border-left:3px solid var(--primary)}
+.ni-icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ni-icon svg{width:16px;height:16px}
+.ni-icon.blue{background:var(--blue-50);color:var(--blue-600)}
+.ni-icon.green{background:var(--green-50);color:var(--green-600)}
+.ni-icon.amber{background:var(--amber-50);color:var(--amber-600)}
+.ni-icon.indigo{background:var(--primary-50);color:var(--primary)}
+.ni-body .nt{font-size:13px;font-weight:500;color:var(--slate-800)}
+.ni-body .nm{font-size:12px;color:var(--slate-500);margin-top:2px}
+.ni-body .ntime{font-size:11px;color:var(--slate-400);margin-top:4px}
+
+.qa-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+.qa-item{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 8px;border-radius:var(--radius-lg);border:1px solid var(--slate-200);cursor:pointer;transition:all .15s ease;text-align:center}
+.qa-item:hover{border-color:var(--primary-200);background:var(--primary-50);transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+.qa-icon{width:36px;height:36px;border-radius:var(--radius);background:var(--slate-100);display:flex;align-items:center;justify-content:center}
+.qa-item:hover .qa-icon{background:var(--primary-100)}
+.qa-icon svg{width:18px;height:18px;color:var(--slate-600)}
+.qa-item:hover .qa-icon svg{color:var(--primary)}
+.qa-label{font-size:11px;font-weight:500;color:var(--slate-600)}
+
+.checkin-hero{background:#fff;border:1px solid var(--slate-200);border-radius:var(--radius-xl);padding:28px;box-shadow:var(--shadow-sm);margin-bottom:24px}
+.ch-status{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.status-dot{width:10px;height:10px;border-radius:50%}
+.status-dot.active{background:var(--green-500);box-shadow:0 0 0 3px var(--green-50)}
+.ch-status .st{font-size:13px;font-weight:500;color:var(--slate-700)}
+.ch-time{font-size:36px;font-weight:700;color:var(--slate-900);font-feature-settings:'tnum';letter-spacing:-1px;margin-bottom:4px}
+.ch-sublabel{font-size:12px;color:var(--slate-400);margin-bottom:20px}
+.ch-meta{display:flex;gap:32px;margin-bottom:20px}
+.cm-item .cm-label{font-size:11px;color:var(--slate-400);text-transform:uppercase;letter-spacing:.04em}
+.cm-item .cm-val{font-size:15px;font-weight:600;color:var(--slate-800);font-feature-settings:'tnum';margin-top:2px}
+.btn-checkout-main{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:var(--slate-800);color:#fff;border-radius:var(--radius);font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all .15s ease;font-family:inherit}
+.btn-checkout-main:hover{background:var(--slate-900);transform:translateY(-1px);box-shadow:0 4px 12px rgba(15,23,42,.2)}
+
+.profile-banner{background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);border-radius:var(--radius-xl);padding:32px;margin-bottom:24px;display:flex;align-items:center;gap:24px;color:#fff}
+.pb-avatar{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;border:3px solid rgba(255,255,255,.3)}
+.pb-info h2{font-size:20px;font-weight:600}
+.pb-meta{font-size:13px;opacity:.8;margin-top:4px}
+.pb-badges{display:flex;gap:8px;margin-top:8px}
+.pb-badge{padding:3px 10px;background:rgba(255,255,255,.15);border-radius:99px;font-size:11px;font-weight:500}
+
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.info-field{padding:14px 16px;border-bottom:1px solid var(--slate-100)}
+.info-field .ifl{font-size:11px;font-weight:500;color:var(--slate-400);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.info-field .ifv{font-size:14px;color:var(--slate-800);font-weight:450}
+
+.onboarding{background:linear-gradient(135deg,var(--primary-50),#fff);border:1px solid var(--primary-200);border-radius:var(--radius-xl);padding:20px;margin-bottom:24px}
+.onboarding .ob-title{font-size:14px;font-weight:600;color:var(--slate-800);margin-bottom:4px}
+.onboarding .ob-sub{font-size:12px;color:var(--slate-500);margin-bottom:14px}
+.ob-steps{display:flex;flex-direction:column;gap:8px}
+.ob-step{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--slate-600)}
+.ob-check{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ob-check.done{background:var(--green-500);color:#fff}
+.ob-check.pending{background:var(--slate-200);color:var(--slate-400)}
+.ob-check svg{width:12px;height:12px}
+.ob-step.done .ob-text{color:var(--slate-400);text-decoration:line-through}
+
+.copilot-fab{position:fixed;bottom:24px;right:24px;width:48px;height:48px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 12px rgba(79,70,229,.3);transition:all .15s ease;z-index:300}
+.copilot-fab:hover{transform:scale(1.05);box-shadow:0 6px 16px rgba(79,70,229,.4)}
+.copilot-fab svg{width:22px;height:22px;color:#fff}
+.copilot-panel{position:fixed;top:0;right:0;width:380px;height:100vh;background:#fff;border-left:1px solid var(--slate-200);box-shadow:var(--shadow-xl);z-index:400;transform:translateX(100%);transition:transform .3s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column}
+.copilot-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.2);z-index:350}
+.cp-header{padding:20px;border-bottom:1px solid var(--slate-100);display:flex;align-items:center;justify-content:space-between}
+.cp-header .cpt{font-size:15px;font-weight:600;color:var(--slate-900)}
+.cp-header .cps{font-size:11px;color:var(--slate-400)}
+.cp-body{flex:1;padding:20px;overflow-y:auto}
+.cp-suggestion{padding:10px 14px;border:1px solid var(--slate-200);border-radius:var(--radius);font-size:13px;color:var(--slate-600);margin-bottom:8px;cursor:pointer;transition:all .15s ease}
+.cp-suggestion:hover{border-color:var(--primary-200);background:var(--primary-50);color:var(--primary-700)}
+.cp-input{padding:16px 20px;border-top:1px solid var(--slate-100);display:flex;gap:8px}
+.cp-input input{flex:1;padding:9px 12px;border:1px solid var(--slate-200);border-radius:var(--radius);font-size:13px;outline:none;font-family:inherit}
+.cp-input input:focus{border-color:var(--primary)}
+
+.cmd-wrap{display:none;position:fixed;inset:0;z-index:500;align-items:flex-start;justify-content:center;padding-top:100px;background:rgba(0,0,0,.3)}
+.cmd-box{background:#fff;border-radius:var(--radius-xl);width:100%;max-width:540px;box-shadow:var(--shadow-xl);border:1px solid var(--slate-200);overflow:hidden}
+.cmd-input-wrap{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--slate-100)}
+.cmd-input-wrap svg{width:18px;height:18px;color:var(--slate-400)}
+.cmd-input-wrap input{flex:1;border:none;outline:none;font-size:15px;color:var(--slate-800);font-family:inherit}
+.cmd-input-wrap input::placeholder{color:var(--slate-400)}
+.cmd-results{padding:8px;max-height:300px;overflow-y:auto}
+.cmd-group{font-size:10px;font-weight:600;color:var(--slate-400);text-transform:uppercase;letter-spacing:.05em;padding:8px 12px 4px}
+.cmd-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius);cursor:pointer;transition:background .15s ease}
+.cmd-item:hover{background:var(--slate-100)}
+.cmd-item svg{width:16px;height:16px;color:var(--slate-400)}
+.cmd-item span{font-size:13px;color:var(--slate-700)}
+
+
+
+/* Role-aware navigation for the demo */
+#p-emp-dash:checked~.app .nav-group.hr-only,
+#p-profile:checked~.app .nav-group.hr-only,
+#p-attendance:checked~.app .nav-group.hr-only,
+#p-leave:checked~.app .nav-group.hr-only,
+#p-payroll:checked~.app .nav-group.hr-only,
+#p-documents:checked~.app .nav-group.hr-only,
+#p-notifications:checked~.app .nav-group.hr-only{display:none}
+
+#p-hr-dash:checked~.app .nav-group.employee-only,
+#p-employees:checked~.app .nav-group.employee-only,
+#p-hr-leave:checked~.app .nav-group.employee-only,
+#p-hr-payroll:checked~.app .nav-group.employee-only,
+#p-reports:checked~.app .nav-group.employee-only,
+#p-announcements:checked~.app .nav-group.employee-only,
+#p-audit:checked~.app .nav-group.employee-only{display:none}
+
+.role-switch{display:flex;gap:8px;margin-top:14px;padding:4px;background:var(--slate-50);border:1px solid var(--slate-200);border-radius:10px}
+.role-switch label{flex:1;text-align:center;padding:7px 8px;border-radius:7px;font-size:11px;font-weight:600;color:var(--slate-500);cursor:pointer}
+.role-switch label:hover{background:#fff;color:var(--primary)}
+.demo-note{font-size:11px;color:var(--slate-400);text-align:center;margin-top:10px}
+.hero-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;margin-bottom:24px}
+.mini-list{display:flex;flex-direction:column;gap:10px}
+.mini-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--slate-100)}
+.mini-row:last-child{border-bottom:0}
+.mini-main{display:flex;align-items:center;gap:10px}
+.mini-icon{width:30px;height:30px;border-radius:7px;background:var(--primary-50);color:var(--primary);display:flex;align-items:center;justify-content:center}
+.mini-icon svg{width:15px;height:15px}
+.mini-title{font-size:12px;font-weight:500;color:var(--slate-700)}
+.mini-sub{font-size:10px;color:var(--slate-400)}
+.kpi-note{font-size:11px;color:var(--slate-400);margin-top:4px}
+.hr-banner{background:linear-gradient(135deg,#eef2ff,#fff);border:1px solid var(--primary-200);border-radius:var(--radius-xl);padding:22px;margin-bottom:24px}
+.hr-banner h2{font-size:18px;color:var(--slate-900);margin-bottom:3px}
+.hr-banner p{font-size:12px;color:var(--slate-500)}
+.chart-legend{display:flex;gap:14px;font-size:10px;color:var(--slate-500);margin-top:10px}
+.legend-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px}
+.table-wrap{overflow:auto;border:1px solid var(--slate-200);border-radius:var(--radius-lg)}
+.empty-state{text-align:center;padding:36px;color:var(--slate-400)}
+.empty-state strong{display:block;color:var(--slate-700);margin-bottom:4px}
+@media(max-width:1024px){.hero-grid{grid-template-columns:1fr}}
+
+@media(max-width:1024px){.stats-row{grid-template-columns:repeat(2,1fr)}.grid-2,.grid-3{grid-template-columns:1fr}.qa-grid{grid-template-columns:repeat(3,1fr)}.info-grid{grid-template-columns:1fr}}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.content{padding:16px}.topbar{padding:0 16px}.stats-row{grid-template-columns:1fr}.qa-grid{grid-template-columns:repeat(2,1fr)}.profile-banner{flex-direction:column;text-align:center}.ch-meta{flex-direction:column;gap:12px}.copilot-panel{width:100%}}
+
+@media(prefers-reduced-motion:no-preference){
+  .fade-in{animation:fadeIn .4s ease-out both}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+}
+
+/* Final usability patch */
+.back-btn{display:inline-flex;align-items:center;gap:6px;margin-right:12px;padding:6px 9px;border:1px solid var(--slate-200);background:#fff;color:var(--slate-600);border-radius:var(--radius);font-size:12px;cursor:pointer}
+.back-btn:hover{background:var(--slate-50);color:var(--slate-900);border-color:var(--slate-300)}
+.search-empty{padding:24px 12px;text-align:center;color:var(--slate-400);font-size:12px;display:none}
+.cmd-wrap.open{display:flex}
+.toast{position:fixed;right:24px;bottom:24px;background:var(--slate-900);color:#fff;padding:11px 15px;border-radius:var(--radius);font-size:12px;box-shadow:var(--shadow-lg);z-index:900;opacity:0;transform:translateY(8px);transition:.2s}
+.toast.show{opacity:1;transform:none}
+@media(max-width:768px){.back-btn{margin-right:4px}.tb-search span.kbd{display:none}}
+</style>
+</head>
+<body>
+
+<input type="radio" name="page" id="p-login" checked>
+<input type="radio" name="page" id="p-signup">
+<input type="radio" name="page" id="p-verify">
+<input type="radio" name="page" id="p-forgot">
+<input type="radio" name="page" id="p-emp-dash">
+<input type="radio" name="page" id="p-profile">
+<input type="radio" name="page" id="p-attendance">
+<input type="radio" name="page" id="p-leave">
+<input type="radio" name="page" id="p-payroll">
+<input type="radio" name="page" id="p-documents">
+<input type="radio" name="page" id="p-notifications">
+<input type="radio" name="page" id="p-hr-dash">
+<input type="radio" name="page" id="p-employees">
+<input type="radio" name="page" id="p-hr-leave">
+<input type="radio" name="page" id="p-hr-payroll">
+<input type="radio" name="page" id="p-reports">
+<input type="radio" name="page" id="p-announcements">
+<input type="radio" name="page" id="p-audit">
+<input type="checkbox" name="copilot" id="copilot-toggle">
+<input type="checkbox" name="cmd" id="cmd-toggle">
+
+<div class="app">
+
+<!-- AUTH: LOGIN -->
+<div class="auth-wrap">
+<div class="page page-login">
+<div class="auth-card fade-in">
+  <div class="auth-brand"><div class="logo">DAYFLOW</div><div class="tagline">Every workday, perfectly aligned.</div></div>
+  <div class="auth-title">Welcome back</div>
+  <div class="auth-sub">Sign in to your account to continue</div>
+  <div class="field"><label>Work Email</label><input type="email" placeholder="you@company.com"></div>
+  <div class="field"><label>Password</label><input type="password" placeholder="Enter your password"></div>
+  <div class="form-row"><label class="form-check"><input type="checkbox"> Remember me</label><label for="p-forgot" class="link">Forgot password?</label></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+    <label for="p-emp-dash" class="btn btn-primary" style="padding:12px;">Sign in as Employee</label>
+    <label for="p-hr-dash" class="btn btn-secondary" style="padding:12px;">Sign in as HR</label>
+  </div>
+  <div class="auth-notice">Demo access • Employee: Arjun Kumar • HR: Priya Sharma</div>
+  <div class="auth-footer">Don't have an account? <label for="p-signup">Create account</label></div>
+</div>
+</div>
+
+<!-- AUTH: SIGNUP -->
+<div class="page page-signup">
+<div class="auth-card fade-in">
+  <div class="auth-brand"><div class="logo">DAYFLOW</div><div class="tagline">Every workday, perfectly aligned.</div></div>
+  <div class="auth-title">Create your account</div>
+  <div class="auth-sub">Get started with your employee account</div>
+  <div class="field"><label>Full Name</label><input type="text" placeholder="Arjun Kumar"></div>
+  <div class="field"><label>Employee ID</label><input type="text" placeholder="EMP-001"></div>
+  <div class="field"><label>Work Email</label><input type="email" placeholder="you@company.com"></div>
+  <div class="field"><label>Password</label><input type="password" placeholder="Create a strong password"><div class="pw-reqs"><span>8+ characters</span><span>Uppercase</span><span>Lowercase</span><span>Number</span><span>Special char</span></div></div>
+  <div class="field"><label>Confirm Password</label><input type="password" placeholder="Confirm your password"></div>
+  <label for="p-verify" class="btn btn-primary btn-full" style="padding:12px;">Create Account</label>
+  <div class="auth-notice">New accounts are registered as Employee accounts. HR/Admin access is provisioned by authorized administrators.</div>
+  <div class="auth-footer">Already have an account? <label for="p-login">Sign in</label></div>
+</div>
+</div>
+
+<!-- AUTH: VERIFY -->
+<div class="page page-verify">
+<div class="auth-card fade-in" style="text-align:center;">
+  <div class="verify-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+  <div class="auth-title">Check your inbox</div>
+  <div class="auth-sub">We sent a verification link to your work email. Please verify to continue.</div>
+  <label for="p-login" class="btn btn-secondary btn-full" style="margin-top:16px;">Return to Sign In</label>
+</div>
+</div>
+
+<!-- AUTH: FORGOT -->
+<div class="page page-forgot">
+<div class="auth-card fade-in">
+  <div class="auth-brand"><div class="logo">DAYFLOW</div></div>
+  <div class="auth-title">Reset your password</div>
+  <div class="auth-sub">Enter your email and we'll send a reset link</div>
+  <div class="field"><label>Work Email</label><input type="email" placeholder="you@company.com"></div>
+  <label for="p-login" class="btn btn-primary btn-full" style="padding:12px;">Send Reset Link</label>
+  <div class="auth-footer"><label for="p-login">← Back to Sign In</label></div>
+</div>
+</div>
+</div>
+
+<!-- APP SHELL -->
+<div class="shell">
+<aside class="sidebar">
+  <div class="sb-header"><div class="sb-brand"><div class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="sb-text"><div class="name">DAYFLOW</div><div class="sub">HR Management</div></div></div></div>
+  <nav class="sb-nav">
+    <div class="nav-group employee-only">
+      <div class="nav-group-title">Employee</div>
+      <label for="p-emp-dash" class="nav-item n-emp-dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>My Workday</label>
+      <label for="p-profile" class="nav-item n-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Profile</label>
+      <label for="p-attendance" class="nav-item n-attendance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Attendance</label>
+      <label for="p-leave" class="nav-item n-leave"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Leave &amp; Time Off</label>
+      <label for="p-payroll" class="nav-item n-payroll"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Payroll</label>
+      <label for="p-documents" class="nav-item n-documents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Documents</label>
+      <label for="p-notifications" class="nav-item n-notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Notifications<span class="nav-badge">3</span></label>
+    </div>
+    <div class="nav-group hr-only">
+      <div class="nav-group-title">HR Admin</div>
+      <label for="p-hr-dash" class="nav-item n-hr-dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Workforce Pulse</label>
+      <label for="p-employees" class="nav-item n-employees"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Employees</label>
+      <label for="p-hr-leave" class="nav-item n-hr-leave"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 14l2 2 4-4"/></svg>Leave Management<span class="nav-badge">5</span></label>
+      <label for="p-hr-payroll" class="nav-item n-hr-payroll"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Payroll Mgmt</label>
+      <label for="p-reports" class="nav-item n-reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>Reports</label>
+      <label for="p-announcements" class="nav-item n-announcements"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Announcements</label>
+      <label for="p-audit" class="nav-item n-audit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Audit Logs</label>
+    </div>
+  </nav>
+  <div class="sb-footer"><div class="sb-user"><div class="avatar">AK</div><div class="sb-user-info"><div class="uname">Arjun Kumar</div><div class="urole">Software Engineer</div></div><label for="p-login" class="sb-logout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></label></div></div>
+</aside>
+
+<div class="main">
+
+
+<!-- ==================== PAGE: MY WORKDAY ==================== -->
+<div class="page page-emp-dash">
+  <div class="topbar"><div class="tb-left"><button class="back-btn" type="button" data-back>← Back</button><div class="page-title">My Workday</div></div><div class="tb-right">
+    <label for="cmd-toggle" class="tb-search">⌕ <span>Search...</span><span class="kbd">⌘K</span></label>
+    <label for="p-notifications" class="tb-btn">♢<span class="notif-dot"></span></label><div class="avatar" style="width:32px;height:32px;font-size:11px">AK</div>
+  </div></div>
+  <div class="content">
+    <div class="page-head"><h1>Good morning, Arjun 👋</h1><p>Friday, 22 August 2026 — Here's your workday at a glance.</p></div>
+    <div class="checkin-hero">
+      <div class="ch-status"><div class="status-dot active"></div><span class="st">Checked In</span></div>
+      <div class="ch-time">04h 38m</div><div class="ch-sublabel">Current working duration</div>
+      <div class="ch-meta"><div class="cm-item"><div class="cm-label">Check-in</div><div class="cm-val">09:12 AM</div></div><div class="cm-item"><div class="cm-label">Expected Checkout</div><div class="cm-val">06:30 PM</div></div><div class="cm-item"><div class="cm-label">Remaining</div><div class="cm-val">04h 22m</div></div></div>
+      <div class="progress" style="height:8px"><div class="progress-fill indigo" style="width:52%"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--slate-400);margin-top:6px"><span>4h 38m completed</span><span>9h total</span></div>
+      <label for="p-attendance" class="btn-checkout-main" style="margin-top:18px">View Attendance →</label>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon blue">◷</div><div class="stat-val">07h 18m</div><div class="stat-label">Today's Hours</div><div class="stat-delta up">On track</div></div>
+      <div class="stat-card"><div class="stat-icon indigo">▣</div><div class="stat-val">12</div><div class="stat-label">Leave Balance</div><div class="stat-delta">Days remaining</div></div>
+      <div class="stat-card"><div class="stat-icon amber">!</div><div class="stat-val">2</div><div class="stat-label">Pending Requests</div><div class="stat-delta">Awaiting approval</div></div>
+      <div class="stat-card"><div class="stat-icon green">✓</div><div class="stat-val">94.2%</div><div class="stat-label">Attendance Rate</div><div class="stat-delta up">+1.4% this month</div></div>
+    </div>
+    <div class="qa-grid">
+      <label for="p-attendance" class="qa-item"><div class="qa-icon">◷</div><div class="qa-label">Attendance</div></label>
+      <label for="p-leave" class="qa-item"><div class="qa-icon">▣</div><div class="qa-label">Apply Leave</div></label>
+      <label for="p-payroll" class="qa-item"><div class="qa-icon">₹</div><div class="qa-label">Payroll</div></label>
+      <label for="p-documents" class="qa-item"><div class="qa-icon">□</div><div class="qa-label">Documents</div></label>
+      <label for="p-profile" class="qa-item"><div class="qa-icon">◎</div><div class="qa-label">My Profile</div></label>
+    </div>
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><div class="title">This Week</div><span class="badge badge-green">94.2% present</span></div>
+        <div class="chart-area"><div class="chart-bar primary" style="height:82%"></div><div class="chart-bar primary" style="height:90%"></div><div class="chart-bar primary" style="height:86%"></div><div class="chart-bar primary" style="height:94%"></div><div class="chart-bar light" style="height:52%"></div><div class="chart-bar light" style="height:30%"></div><div class="chart-bar light" style="height:22%"></div></div>
+        <div class="chart-labels"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+      </div>
+      <div class="card"><div class="card-head"><div class="title">Leave Balance</div><label for="p-leave" class="action">Manage →</label></div>
+        <div class="leave-card"><div class="lc-type">Paid Leave</div><div class="lc-num">8 <span class="lc-total">/ 12 remaining</span></div><div class="progress" style="margin-top:9px"><div class="progress-fill green" style="width:67%"></div></div></div>
+        <div style="height:10px"></div>
+        <div class="leave-card"><div class="lc-type">Sick Leave</div><div class="lc-num">4 <span class="lc-total">/ 6 remaining</span></div><div class="progress" style="margin-top:9px"><div class="progress-fill amber" style="width:67%"></div></div></div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><div class="title">Recent Activity</div></div>
+        <div class="activity-item"><div class="act-dot green"></div><div><div class="act-text">Checked in for today's workday</div><div class="act-time">Today, 09:12 AM</div></div></div>
+        <div class="activity-item"><div class="act-dot blue"></div><div><div class="act-text">Leave request approved</div><div class="act-time">Yesterday, 04:18 PM</div></div></div>
+        <div class="activity-item"><div class="act-dot indigo"></div><div><div class="act-text">August payslip published</div><div class="act-time">Aug 20, 10:00 AM</div></div></div>
+      </div>
+      <div class="card"><div class="card-head"><div class="title">Company Updates</div><label for="p-notifications" class="action">View all →</label></div>
+        <div class="announcement"><div class="a-title">Annual Day Celebration</div><div class="a-body">RSVP is open for the annual celebration on September 5.</div><div class="a-meta">People & Culture • Aug 21</div></div>
+        <div class="announcement warn"><div class="a-title">System Maintenance</div><div class="a-body">DAYFLOW will be under maintenance tonight from 11 PM.</div><div class="a-meta">IT Operations • Aug 21</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PAGE: PROFILE ==================== -->
+<div class="page page-profile">
+<div class="topbar"><div class="tb-left"><button class="back-btn" type="button" data-back>← Back</button><div class="page-title">My Profile</div></div><div class="tb-right"><label for="p-notifications" class="tb-btn">♢</label><div class="avatar">AK</div></div></div>
+<div class="content"><div class="page-head"><h1>My Profile</h1><p>Keep your employee information up to date.</p></div>
+<div class="profile-banner"><div class="pb-avatar">AK</div><div class="pb-info"><h2>Arjun Kumar</h2><div class="pb-meta">Software Engineer • Engineering • EMP-001</div><div class="pb-badges"><span class="pb-badge">Full Time</span><span class="pb-badge">Active</span></div></div></div>
+<div class="tabs"><div class="tab active">Personal Information</div><div class="tab">Job Information</div><div class="tab">Documents</div><div class="tab">Emergency Contact</div></div>
+<div class="grid-2"><div class="card"><div class="card-head"><div class="title">Personal Information</div><span class="badge badge-green">Verified</span></div><div class="info-grid">
+<div class="info-field"><div class="ifl">Full Name</div><div class="ifv">Arjun Kumar</div></div><div class="info-field"><div class="ifl">Employee ID</div><div class="ifv">EMP-001</div></div>
+<div class="info-field"><div class="ifl">Work Email</div><div class="ifv">arjun.kumar@dayflow.demo</div></div><div class="info-field"><div class="ifl">Phone</div><div class="ifv">+91 98765 43210</div></div>
+<div class="info-field"><div class="ifl">Location</div><div class="ifv">Bengaluru, Karnataka</div></div><div class="info-field"><div class="ifl">Work Mode</div><div class="ifv">Hybrid</div></div></div><button class="btn btn-primary btn-sm" style="margin-top:16px">Edit Profile</button></div>
+<div class="card"><div class="card-head"><div class="title">Job Information</div></div><div class="info-grid">
+<div class="info-field"><div class="ifl">Department</div><div class="ifv">Engineering</div></div><div class="info-field"><div class="ifl">Job Title</div><div class="ifv">Software Engineer</div></div>
+<div class="info-field"><div class="ifl">Employment Type</div><div class="ifv">Full Time</div></div><div class="info-field"><div class="ifl">Date of Joining</div><div class="ifv">12 Jan 2025</div></div>
+<div class="info-field"><div class="ifl">Manager</div><div class="ifv">Priya Sharma</div></div><div class="info-field"><div class="ifl">Office</div><div class="ifv">Bengaluru HQ</div></div></div></div></div>
+<div class="card"><div class="card-head"><div class="title">Emergency Contact</div></div><div class="info-grid"><div class="info-field"><div class="ifl">Contact Name</div><div class="ifv">Rahul Kumar</div></div><div class="info-field"><div class="ifl">Relationship</div><div class="ifv">Brother</div></div><div class="info-field"><div class="ifl">Phone</div><div class="ifv">+91 98765 40000</div></div></div></div>
+</div></div>
+
+<!-- ==================== PAGE: ATTENDANCE ==================== -->
+<div class="page page-attendance">
+<div class="topbar"><div class="tb-left"><button class="back-btn" type="button" data-back>← Back</button><div class="page-title">Attendance</div></div><div class="tb-right"><div class="avatar">AK</div></div></div>
+<div class="content"><div class="page-head"><h1>Attendance</h1><p>Track your working hours and attendance history.</p></div>
+<div class="stats-row"><div class="stat-card"><div class="stat-val">94.2%</div><div class="stat-label">Attendance Rate</div></div><div class="stat-card"><div class="stat-val">22</div><div class="stat-label">Present Days</div></div><div class="stat-card"><div class="stat-val">1</div><div class="stat-label">Absent</div></div><div class="stat-card"><div class="stat-val">2</div><div class="stat-label">On Leave</div></div></div>
+<div class="card" style="margin-bottom:24px"><div class="card-head"><div class="title">August 2026</div><div><span class="badge badge-green">Present</span> <span class="badge badge-amber">Leave</span> <span class="badge badge-red">Absent</span></div></div>
+<div class="att-grid">
+<div class="att-cell empty"><span class="dn">27</span><span class="dl">Jul</span></div><div class="att-cell empty"><span class="dn">28</span><span class="dl">Jul</span></div><div class="att-cell empty"><span class="dn">29</span><span class="dl">Jul</span></div><div class="att-cell empty"><span class="dn">30</span><span class="dl">Jul</span></div><div class="att-cell empty"><span class="dn">31</span><span class="dl">Jul</span></div>
+<div class="att-cell present"><span class="dn">1</span><span class="dl">P</span></div><div class="att-cell present"><span class="dn">2</span><span class="dl">P</span></div>
+<div class="att-cell present"><span class="dn">3</span><span class="dl">P</span></div><div class="att-cell present"><span class="dn">4</span><span class="dl">P</span></div><div class="att-cell present"><span class="dn">5</span><span class="dl">P</span></div><div class="att-cell leave"><span class="dn">6</span><span class="dl">L</span></div><div class="att-cell present"><span class="dn">7</span><span class="dl">P</span></div><div class="att-cell present"><span class="dn">8</span><span class="dl">P</span></div>
+<div class="att-cell present"><span class="dn">9</span><span class="dl">P</span></div><div class="att-cell present"><span class="dn">10</span><span class="dl">P</span></div><div class="att-cell present"><span class="dn">11</span><span class="dl">P</span></div><div class="att-cell present"><span class="dn">12</span><span class="dl">P</span></div><div class="att-cell present"><span class="dn">13</span><span class="dl">P</span></div><div class="att-cell present"><span class="dn">14</span><span class="dl">P</span></div><div class="att-cell present"><span class="dn">15</span><span class="dl">P</span></div>
+<div class="att-cell present"><span class="dn">16</span><span class="dl">P</span></div><div class="att-cell present"><span class="dn">17</span><span class="dl">P</span></div><div class="att-cell leave"><span class="dn">18</span><span class="dl">L</span></div><div class="att-cell present"><span class="dn">19</span><span class="dl">P</span></div><div class="att-cell present"><span class="dn">20</span><span class="dl">P</span></div><div class="att-cell present"><span class="dn">21</span><span class="dl">P</span></div><div class="att-cell today present"><span class="dn">22</span><span class="dl">Today</span></div></div></div>
+<div class="card"><div class="card-head"><div class="title">Attendance History</div><div class="filter-row" style="margin:0"><span class="pill active">Monthly</span><span class="pill">Weekly</span><span class="pill">Daily</span></div></div><div class="table-wrap"><table class="data-table"><tr><th>Date</th><th>Check In</th><th>Check Out</th><th>Work Hours</th><th>Status</th></tr>
+<tr><td>22 Aug</td><td>09:12 AM</td><td>—</td><td>04h 38m</td><td><span class="badge badge-green">Present</span></td></tr><tr><td>21 Aug</td><td>09:04 AM</td><td>06:42 PM</td><td>09h 38m</td><td><span class="badge badge-green">Present</span></td></tr><tr><td>20 Aug</td><td>09:18 AM</td><td>06:31 PM</td><td>09h 13m</td><td><span class="badge badge-green">Present</span></td></tr><tr><td>19 Aug</td><td>09:02 AM</td><td>06:38 PM</td><td>09h 36m</td><td><span class="badge badge-green">Present</span></td></tr><tr><td>18 Aug</td><td>—</td><td>—</td><td>—</td><td><span class="badge badge-amber">Leave</span></td></tr><tr><td>17 Aug</td><td>09:09 AM</td><td>06:45 PM</td><td>09h 36m</td><td><span class="badge badge-green">Present</span></td></tr></table></div></div>
+</div></div>
+
+<!-- ==================== PAGE: LEAVE ==================== -->
+<div class="page page-leave">
+<div class="topbar"><div class="tb-left"><button class="back-btn" type="button" data-back>← Back</button><div class="page-title">Leave &amp; Time Off</div></div><div class="tb-right"><div class="avatar">AK</div></div></div>
+<div class="content"><div class="page-head"><h1>Leave &amp; Time Off</h1><p>Request time away and track approval status.</p></div>
+<div class="grid-3"><div class="leave-card"><div class="lc-type">Paid Leave</div><div class="lc-num">8 <span class="lc-total">/ 12 remaining</span></div><div class="progress" style="margin-top:10px"><div class="progress-fill green" style="width:67%"></div></div></div><div class="leave-card"><div class="lc-type">Sick Leave</div><div class="lc-num">4 <span class="lc-total">/ 6 remaining</span></div><div class="progress" style="margin-top:10px"><div class="progress-fill amber" style="width:67%"></div></div></div><div class="leave-card"><div class="lc-type">Unpaid Leave</div><div class="lc-num">Available</div><div class="lc-total">Subject to manager approval</div></div></div>
+<div class="grid-2"><div class="card"><div class="card-head"><div class="title">Apply for Leave</div></div><div class="field"><label>Leave Type</label><select><option>Paid Leave</option><option>Sick Leave</option><option>Unpaid Leave</option></select></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field"><label>Start Date</label><input value="28 Aug 2026"></div><div class="field"><label>End Date</label><input value="29 Aug 2026"></div></div><div class="field"><label>Reason</label><textarea placeholder="Briefly explain the reason..."></textarea></div><div class="card" style="padding:12px;background:var(--slate-50)"><div style="display:flex;justify-content:space-between;font-size:12px"><span>Requested Days</span><strong>2 days</strong></div><div style="display:flex;justify-content:space-between;font-size:12px;margin-top:6px"><span>Balance After Request</span><strong>6 days</strong></div></div><button class="btn btn-primary" style="margin-top:16px">Submit Request</button></div>
+<div class="card"><div class="card-head"><div class="title">My Requests</div><span class="badge badge-amber">2 pending</span></div><div class="table-wrap"><table class="data-table"><tr><th>Type</th><th>Dates</th><th>Days</th><th>Status</th></tr><tr><td>Sick Leave</td><td>28–29 Aug</td><td>2</td><td><span class="badge badge-amber">Pending</span></td></tr><tr><td>Paid Leave</td><td>15 Aug</td><td>1</td><td><span class="badge badge-green">Approved</span></td></tr><tr><td>Medical Leave</td><td>11–12 Jul</td><td>2</td><td><span class="badge badge-red">Rejected</span></td></tr></table></div></div></div>
+</div></div>
+
+<!-- ==================== PAGE: PAYROLL ==================== -->
+<div class="page page-payroll">
+<div class="topbar"><div class="tb-left"><button class="back-btn" type="button" data-back>← Back</button><div class="page-title">Payroll</div></div><div class="tb-right"><div class="avatar">AK</div></div></div>
+<div class="content"><div class="page-head"><h1>Payroll</h1><p>View your salary, deductions and payslips.</p></div>
+<div class="stats-row"><div class="stat-card"><div class="stat-val">₹85,000</div><div class="stat-label">August Gross</div></div><div class="stat-card"><div class="stat-val">₹8,500</div><div class="stat-label">Deductions</div></div><div class="stat-card"><div class="stat-val">₹76,500</div><div class="stat-label">Net Pay</div><div class="stat-delta up">Published</div></div><div class="stat-card"><div class="stat-val">31 Aug</div><div class="stat-label">Pay Date</div></div></div>
+<div class="grid-2"><div class="card"><div class="card-head"><div class="title">August 2026 Payslip</div><span class="badge badge-green">Published</span></div><div class="payslip-line"><span class="pl">Basic Salary</span><span class="pa">₹50,000</span></div><div class="payslip-line"><span class="pl">HRA</span><span class="pa">₹20,000</span></div><div class="payslip-line"><span class="pl">Allowances</span><span class="pa">₹15,000</span></div><div class="payslip-line"><span class="pl">Gross Salary</span><span class="pa">₹85,000</span></div><div class="payslip-line"><span class="pl">Deductions</span><span class="pa">₹8,500</span></div><div class="payslip-line total"><span class="pl">Net Pay</span><span class="pa">₹76,500</span></div><button class="btn btn-primary btn-sm" style="margin-top:16px">View Payslip</button> <button class="btn btn-secondary btn-sm">Print</button></div>
+<div class="card"><div class="card-head"><div class="title">Payroll History</div></div><div class="table-wrap"><table class="data-table"><tr><th>Month</th><th>Gross</th><th>Deductions</th><th>Net</th><th>Status</th></tr><tr><td>June</td><td>₹85,000</td><td>₹8,400</td><td>₹76,600</td><td><span class="badge badge-green">Paid</span></td></tr><tr><td>July</td><td>₹85,000</td><td>₹8,500</td><td>₹76,500</td><td><span class="badge badge-green">Paid</span></td></tr><tr><td>August</td><td>₹85,000</td><td>₹8,500</td><td>₹76,500</td><td><span class="badge badge-blue">Published</span></td></tr></table></div></div></div>
+</div></div>
+
+<!-- ==================== PAGE: DOCUMENTS ==================== -->
+<div class="page page-documents">
+<div class="topbar"><div class="tb-left"><button class="back-btn" type="button" data-back>← Back</button><div class="page-title">My Documents</div></div><div class="tb-right"><div class="avatar">AK</div></div></div>
+<div class="content"><div class="page-head"><h1>My Documents</h1><p>Securely access your employment and salary documents.</p></div><div class="card"><div class="card-head"><div class="title">Documents</div><button class="btn btn-primary btn-sm">+ Upload Document</button></div><div class="table-wrap"><table class="data-table"><tr><th>Document</th><th>Category</th><th>Uploaded</th><th>Status</th><th>Action</th></tr><tr><td>Aadhaar / ID Document</td><td>Identity</td><td>12 Jan 2025</td><td><span class="badge badge-green">Verified</span></td><td><button class="btn btn-ghost btn-sm">View</button></td></tr><tr><td>Employment Contract</td><td>Employment</td><td>12 Jan 2025</td><td><span class="badge badge-green">Verified</span></td><td><button class="btn btn-ghost btn-sm">View</button></td></tr><tr><td>Salary Certificate</td><td>Salary</td><td>01 Jul 2026</td><td><span class="badge badge-blue">Available</span></td><td><button class="btn btn-ghost btn-sm">View</button></td></tr><tr><td>Offer Letter</td><td>Employment</td><td>12 Jan 2025</td><td><span class="badge badge-green">Verified</span></td><td><button class="btn btn-ghost btn-sm">View</button></td></tr></table></div></div></div></div>
+
+<!-- ==================== PAGE: NOTIFICATIONS ==================== -->
+<div class="page page-notifications">
+<div class="topbar"><div class="tb-left"><button class="back-btn" type="button" data-back>← Back</button><div class="page-title">Notifications</div></div><div class="tb-right"><div class="avatar">AK</div></div></div>
+<div class="content"><div class="page-head"><h1>Notifications <span class="badge badge-red">3 unread</span></h1><p>Important updates from HR, payroll and your workplace.</p></div><div class="tabs"><div class="tab active">All</div><div class="tab">Leave</div><div class="tab">Attendance</div><div class="tab">Payroll</div><div class="tab">Announcements</div></div><div class="card">
+<div class="notif-item unread"><div class="ni-icon green">✓</div><div class="ni-body"><div class="nt">Leave request approved</div><div class="nm">Your paid leave request for August 15 was approved by Priya Sharma.</div><div class="ntime">Yesterday • 04:18 PM</div></div></div>
+<div class="notif-item unread"><div class="ni-icon blue">₹</div><div class="ni-body"><div class="nt">August payroll published</div><div class="nm">Your payslip is now available to view.</div><div class="ntime">Aug 20 • 10:00 AM</div></div></div>
+<div class="notif-item unread"><div class="ni-icon amber">!</div><div class="ni-body"><div class="nt">System maintenance</div><div class="nm">Scheduled maintenance tonight from 11:00 PM to 12:00 AM.</div><div class="ntime">Aug 21 • 02:30 PM</div></div></div>
+<div class="notif-item"><div class="ni-icon indigo">★</div><div class="ni-body"><div class="nt">Annual Day RSVP is open</div><div class="nm">Confirm your attendance for the September 5 celebration.</div><div class="ntime">Aug 21 • 11:15 AM</div></div></div>
+</div></div></div>
+
+<!-- ==================== PAGE: HR WORKFORCE PULSE ==================== -->
+<div class="page page-hr-dash">
+<div class="topbar"><div class="tb-left"><button class="back-btn" type="button" data-back>← Back</button><div class="page-title">Workforce Pulse</div></div><div class="tb-right"><label for="p-notifications" class="tb-btn">♢<span class="notif-dot"></span></label><div class="avatar">PS</div></div></div>
+<div class="content"><div class="page-head"><h1>Good morning, Priya 👋</h1><p>HR Command Center — Friday, 22 August 2026.</p></div>
+<div class="hr-banner"><h2>Workforce Pulse</h2><p>Organization-wide visibility across attendance, leave, people and payroll.</p></div>
+<div class="stats-row"><div class="stat-card"><div class="stat-val">248</div><div class="stat-label">Total Employees</div><div class="stat-delta up">+6 this quarter</div></div><div class="stat-card"><div class="stat-val">219</div><div class="stat-label">Present Today</div><div class="stat-delta up">88.3% attendance</div></div><div class="stat-card"><div class="stat-val">17</div><div class="stat-label">On Leave</div><div class="stat-delta">Across 8 departments</div></div><div class="stat-card"><div class="stat-val">5</div><div class="stat-label">Pending Approvals</div><div class="stat-delta down">Needs attention</div></div></div>
+<div class="grid-2"><div class="card"><div class="card-head"><div class="title">HR Action Center</div><span class="badge badge-red">5 actions</span></div>
+<div class="action-item"><div class="action-icon amber">!</div><div class="action-text"><div class="al">5 leave requests require review</div><div class="at">Pending manager approval</div></div><label for="p-hr-leave" class="action-btn">Review</label></div>
+<div class="action-item"><div class="action-icon blue">◷</div><div class="action-text"><div class="al">2 attendance corrections pending</div><div class="at">Employees submitted regularization</div></div><label for="p-attendance" class="action-btn">Review</label></div>
+<div class="action-item"><div class="action-icon red">◎</div><div class="action-text"><div class="al">3 employee profiles incomplete</div><div class="at">Missing required information</div></div><label for="p-employees" class="action-btn">Review</label></div></div>
+<div class="card"><div class="card-head"><div class="title">Attendance Health</div><span class="badge badge-green">Healthy</span></div><div style="font-size:28px;font-weight:700;color:var(--slate-900)">88.3%</div><div class="kpi-note">Today's organization attendance</div><div class="progress" style="margin:16px 0 18px;height:9px"><div class="progress-fill green" style="width:88.3%"></div></div><div class="dept-item"><div class="dept-name">Engineering</div><div class="dept-bar"><div class="dept-fill" style="width:92%"></div></div><div class="dept-pct">92%</div></div><div class="dept-item"><div class="dept-name">Design</div><div class="dept-bar"><div class="dept-fill" style="width:94%"></div></div><div class="dept-pct">94%</div></div><div class="dept-item"><div class="dept-name">Finance</div><div class="dept-bar"><div class="dept-fill" style="width:87%"></div></div><div class="dept-pct">87%</div></div><div class="dept-item"><div class="dept-name">Marketing</div><div class="dept-bar"><div class="dept-fill" style="width:90%"></div></div><div class="dept-pct">90%</div></div><div class="dept-item"><div class="dept-name">HR</div><div class="dept-bar"><div class="dept-fill" style="width:96%"></div></div><div class="dept-pct">96%</div></div></div></div>
+<div class="grid-2"><div class="card"><div class="card-head"><div class="title">Weekly Attendance Trend</div></div><div class="chart-area"><div class="chart-bar primary" style="height:75%"></div><div class="chart-bar primary" style="height:84%"></div><div class="chart-bar primary" style="height:79%"></div><div class="chart-bar primary" style="height:91%"></div><div class="chart-bar primary" style="height:88%"></div><div class="chart-bar light" style="height:70%"></div><div class="chart-bar light" style="height:62%"></div></div><div class="chart-labels"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div></div>
+<div class="card"><div class="card-head"><div class="title">Recent HR Activity</div></div><div class="activity-item"><div class="act-dot green"></div><div><div class="act-text">Leave approved for EMP-014</div><div class="act-time">09:42 AM</div></div></div><div class="activity-item"><div class="act-dot blue"></div><div><div class="act-text">Employee profile updated — EMP-021</div><div class="act-time">09:30 AM</div></div></div><div class="activity-item"><div class="act-dot indigo"></div><div><div class="act-text">Payroll batch published</div><div class="act-time">08:55 AM</div></div></div><div class="activity-item"><div class="act-dot amber"></div><div><div class="act-text">New employee onboarded</div><div class="act-time">Yesterday</div></div></div></div></div>
+</div></div>
+
+<!-- ==================== PAGE: EMPLOYEES ==================== -->
+<div class="page page-employees">
+<div class="topbar"><div class="tb-left"><button class="back-btn" type="button" data-back>← Back</button><div class="page-title">Employees</div></div><div class="tb-right"><div class="avatar">PS</div></div></div>
+<div class="content"><div class="page-head"><h1>Employees</h1><p>Manage the organization directory and employee records.</p></div>
+<div class="stats-row"><div class="stat-card"><div class="stat-val">248</div><div class="stat-label">Total Employees</div></div><div class="stat-card"><div class="stat-val">241</div><div class="stat-label">Active</div></div><div class="stat-card"><div class="stat-val">4</div><div class="stat-label">On Leave</div></div><div class="stat-card"><div class="stat-val">3</div><div class="stat-label">New Joiners</div></div></div>
+<div class="card"><div class="card-head"><div class="title">Employee Directory</div><button class="btn btn-primary btn-sm">+ Add Employee</button></div><div class="filter-row"><input style="padding:7px 10px;border:1px solid var(--slate-200);border-radius:7px;width:240px" placeholder="Search by name or ID"><span class="pill active">All Departments</span><span class="pill">Active</span><span class="pill">On Leave</span></div><div class="table-wrap"><table class="data-table"><tr><th>Employee</th><th>ID</th><th>Department</th><th>Job Title</th><th>Type</th><th>Status</th><th>Joined</th><th></th></tr>
+<tr><td>Arjun Kumar</td><td class="mono">EMP-001</td><td>Engineering</td><td>Software Engineer</td><td>Full Time</td><td><span class="badge badge-green">Active</span></td><td>12 Jan 2025</td><td>View</td></tr>
+<tr><td>Neha Singh</td><td class="mono">EMP-014</td><td>Engineering</td><td>Senior Developer</td><td>Full Time</td><td><span class="badge badge-amber">On Leave</span></td><td>04 Mar 2023</td><td>View</td></tr>
+<tr><td>Rohan Mehta</td><td class="mono">EMP-021</td><td>Design</td><td>Product Designer</td><td>Full Time</td><td><span class="badge badge-green">Active</span></td><td>18 Sep 2024</td><td>View</td></tr>
+<tr><td>Ananya Rao</td><td class="mono">EMP-034</td><td>Finance</td><td>Finance Analyst</td><td>Full Time</td><td><span class="badge badge-green">Active</span></td><td>09 Nov 2022</td><td>View</td></tr>
+<tr><td>Karan Patel</td><td class="mono">EMP-052</td><td>Marketing</td><td>Marketing Manager</td><td>Full Time</td><td><span class="badge badge-green">Active</span></td><td>21 Jun 2021</td><td>View</td></tr>
+<tr><td>Meera Joshi</td><td class="mono">EMP-067</td><td>HR</td><td>HR Specialist</td><td>Full Time</td><td><span class="badge badge-green">Active</span></td><td>14 Feb 2024</td><td>View</td></tr>
+<tr><td>Vikram Shah</td><td class="mono">EMP-081</td><td>Engineering</td><td>QA Engineer</td><td>Contract</td><td><span class="badge badge-green">Active</span></td><td>03 May 2026</td><td>View</td></tr></table></div></div>
+</div></div>
+
+<!-- ==================== PAGE: HR LEAVE MANAGEMENT ==================== -->
+<div class="page page-hr-leave">
+<div class="topbar"><div class="tb-left"><button class="back-btn" type="button" data-back>← Back</button><div class="page-title">Leave Management</div></div><div class="tb-right"><div class="avatar">PS</div></div></div>
+<div class="content"><div class="page-head"><h1>Leave Management</h1><p>Review, approve and manage employee time-off requests.</p></div>
+<div class="stats-row"><div class="stat-card"><div class="stat-val">5</div><div class="stat-label">Pending</div></div><div class="stat-card"><div class="stat-val">42</div><div class="stat-label">Approved</div></div><div class="stat-card"><div class="stat-val">3</div><div class="stat-label">Rejected</div></div><div class="stat-card"><div class="stat-val">17</div><div class="stat-label">On Leave Today</div></div></div>
+<div class="card"><div class="card-head"><div class="title">Requests Queue</div><div class="filter-row" style="margin:0"><span class="pill active">Pending</span><span class="pill">All</span><span class="pill">Approved</span></div></div><div class="table-wrap"><table class="data-table"><tr><th>Employee</th><th>Leave Type</th><th>Date Range</th><th>Days</th><th>Reason</th><th>Status</th><th>Action</th></tr>
+<tr><td>Neha Singh</td><td>Paid Leave</td><td>28–29 Aug</td><td>2</td><td>Personal</td><td><span class="badge badge-amber">Pending</span></td><td><button class="btn btn-success btn-sm">Approve</button> <button class="btn btn-danger btn-sm">Reject</button></td></tr>
+<tr><td>Ritesh Kumar</td><td>Sick Leave</td><td>25 Aug</td><td>1</td><td>Medical</td><td><span class="badge badge-amber">Pending</span></td><td><button class="btn btn-success btn-sm">Approve</button> <button class="btn btn-danger btn-sm">Reject</button></td></tr>
+<tr><td>Simran Kaur</td><td>Paid Leave</td><td>01–03 Sep</td><td>3</td><td>Travel</td><td><span class="badge badge-amber">Pending</span></td><td><button class="btn btn-success btn-sm">Approve</button> <button class="btn btn-danger btn-sm">Reject</button></td></tr>
+<tr><td>Arjun Kumar</td><td>Paid Leave</td><td>15 Aug</td><td>1</td><td>Personal</td><td><span class="badge badge-green">Approved</span></td><td>—</td></tr></table></div></div>
+</div></div>
+
+<!-- ==================== PAGE: HR PAYROLL ==================== -->
+<div class="page page-hr-payroll">
+<div class="topbar"><div class="tb-left"><button class="back-btn" type="button" data-back>← Back</button><div class="page-title">Payroll Management</div></div><div class="tb-right"><div class="avatar">PS</div></div></div>
+<div class="content"><div class="page-head"><h1>Payroll Management</h1><p>Review payroll batches, deductions and employee payouts.</p></div>
+<div class="stats-row"><div class="stat-card"><div class="stat-val">₹1.82 Cr</div><div class="stat-label">Total Monthly Payroll</div></div><div class="stat-card"><div class="stat-val">240</div><div class="stat-label">Published</div></div><div class="stat-card"><div class="stat-val">8</div><div class="stat-label">Draft</div></div><div class="stat-card"><div class="stat-val">31 Aug</div><div class="stat-label">Pay Date</div></div></div>
+<div class="card"><div class="card-head"><div class="title">August Payroll</div><button class="btn btn-primary btn-sm">+ Create Payroll Run</button></div><div class="table-wrap"><table class="data-table"><tr><th>Employee</th><th>Department</th><th>Gross</th><th>Deductions</th><th>Net Pay</th><th>Status</th><th>Action</th></tr>
+<tr><td>Arjun Kumar</td><td>Engineering</td><td>₹85,000</td><td>₹8,500</td><td>₹76,500</td><td><span class="badge badge-green">Published</span></td><td>View</td></tr><tr><td>Neha Singh</td><td>Engineering</td><td>₹1,10,000</td><td>₹12,100</td><td>₹97,900</td><td><span class="badge badge-green">Published</span></td><td>View</td></tr><tr><td>Rohan Mehta</td><td>Design</td><td>₹78,000</td><td>₹7,800</td><td>₹70,200</td><td><span class="badge badge-green">Published</span></td><td>View</td></tr><tr><td>Ananya Rao</td><td>Finance</td><td>₹72,000</td><td>₹7,200</td><td>₹64,800</td><td><span class="badge badge-blue">Draft</span></td><td>Edit</td></tr></table></div></div>
+</div></div>
+
+<!-- ==================== PAGE: REPORTS ==================== -->
+<div class="page page-reports">
+<div class="topbar"><div class="tb-left"><button class="back-btn" type="button" data-back>← Back</button><div class="page-title">Reports &amp; Analytics</div></div><div class="tb-right"><div class="avatar">PS</div></div></div>
+<div class="content"><div class="page-head"><h1>Reports &amp; Analytics</h1><p>Workforce intelligence for HR decisions.</p></div>
+<div class="filter-row"><span class="pill active">This Month</span><span class="pill">Last 30 Days</span><span class="pill">This Quarter</span><span class="pill">All Departments</span><button class="btn btn-secondary btn-sm" style="margin-left:auto">Export CSV</button><button class="btn btn-primary btn-sm">Print</button></div>
+<div class="grid-2"><div class="card"><div class="card-head"><div class="title">Attendance Trend</div><span class="badge badge-green">+2.1%</span></div><div class="chart-area"><div class="chart-bar light" style="height:65%"></div><div class="chart-bar primary" style="height:73%"></div><div class="chart-bar primary" style="height:70%"></div><div class="chart-bar primary" style="height:82%"></div><div class="chart-bar primary" style="height:88%"></div><div class="chart-bar primary" style="height:84%"></div><div class="chart-bar primary" style="height:91%"></div></div><div class="chart-labels"><span>W1</span><span>W2</span><span>W3</span><span>W4</span><span>W5</span><span>W6</span><span>W7</span></div></div>
+<div class="card"><div class="card-head"><div class="title">Leave Utilization</div></div><div style="margin:20px 0"><div class="dept-item"><div class="dept-name">Engineering</div><div class="dept-bar"><div class="dept-fill" style="width:42%"></div></div><div class="dept-pct">42%</div></div><div class="dept-item"><div class="dept-name">Design</div><div class="dept-bar"><div class="dept-fill" style="width:31%"></div></div><div class="dept-pct">31%</div></div><div class="dept-item"><div class="dept-name">Finance</div><div class="dept-bar"><div class="dept-fill" style="width:38%"></div></div><div class="dept-pct">38%</div></div><div class="dept-item"><div class="dept-name">Marketing</div><div class="dept-bar"><div class="dept-fill" style="width:27%"></div></div><div class="dept-pct">27%</div></div></div></div></div>
+<div class="grid-3"><div class="card"><div class="card-head"><div class="title">Headcount</div></div><div class="stat-val">248</div><div class="kpi-note">+6 vs last quarter</div></div><div class="card"><div class="card-head"><div class="title">Turnover</div></div><div class="stat-val">4.2%</div><div class="kpi-note">Rolling 90 days</div></div><div class="card"><div class="card-head"><div class="title">Open Positions</div></div><div class="stat-val">14</div><div class="kpi-note">Across 5 departments</div></div></div>
+</div></div>
+
+<!-- ==================== PAGE: ANNOUNCEMENTS ==================== -->
+<div class="page page-announcements">
+<div class="topbar"><div class="tb-left"><button class="back-btn" type="button" data-back>← Back</button><div class="page-title">Announcements</div></div><div class="tb-right"><div class="avatar">PS</div></div></div>
+<div class="content"><div class="page-head"><h1>Announcements</h1><p>Publish company-wide updates and important notices.</p></div>
+<div class="grid-2"><div class="card"><div class="card-head"><div class="title">Published Announcements</div><button class="btn btn-primary btn-sm">+ Create</button></div>
+<div class="announcement"><div class="a-title">Annual Day Celebration</div><div class="a-body">Join us on September 5 for the annual company celebration.</div><div class="a-meta">All Employees • Published Aug 21 • Expires Sep 06</div></div>
+<div class="announcement warn"><div class="a-title">System Maintenance</div><div class="a-body">DAYFLOW maintenance scheduled tonight from 11 PM to midnight.</div><div class="a-meta">All Employees • Published Aug 21 • Expires Aug 23</div></div>
+</div>
+<div class="card"><div class="card-head"><div class="title">Create Announcement</div></div><div class="field"><label>Title</label><input placeholder="Announcement title"></div><div class="field"><label>Message</label><textarea placeholder="Write the company update..."></textarea></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field"><label>Audience</label><select><option>All Employees</option><option>Engineering</option><option>Managers</option></select></div><div class="field"><label>Expiry</label><input value="06 Sep 2026"></div></div><button class="btn btn-primary">Publish Announcement</button></div></div>
+</div></div>
+
+<!-- ==================== PAGE: AUDIT ==================== -->
+<div class="page page-audit">
+<div class="topbar"><div class="tb-left"><button class="back-btn" type="button" data-back>← Back</button><div class="page-title">Audit Logs</div></div><div class="tb-right"><div class="avatar">PS</div></div></div>
+<div class="content"><div class="page-head"><h1>Audit Logs</h1><p>Security and compliance history for HR operations.</p></div>
+<div class="stats-row"><div class="stat-card"><div class="stat-val">24</div><div class="stat-label">Today's Events</div></div><div class="stat-card"><div class="stat-val">12</div><div class="stat-label">Login Events</div></div><div class="stat-card"><div class="stat-val">8</div><div class="stat-label">Data Changes</div></div><div class="stat-card"><div class="stat-val">4</div><div class="stat-label">Security Events</div></div></div>
+<div class="card"><div class="card-head"><div class="title">Activity Log</div><div class="filter-row" style="margin:0"><span class="pill active">Today</span><span class="pill">All Actors</span><span class="pill">All Actions</span></div></div><div class="table-wrap"><table class="data-table"><tr><th>Timestamp</th><th>Actor</th><th>Action</th><th>Entity</th><th>Details</th></tr>
+<tr><td class="mono">09:42</td><td>Priya Sharma</td><td>Approved leave request</td><td>Leave</td><td>EMP-014 • 2 days</td></tr><tr><td class="mono">09:30</td><td>Admin</td><td>Updated employee profile</td><td>Employee</td><td>EMP-021</td></tr><tr><td class="mono">09:12</td><td>Arjun Kumar</td><td>Check in</td><td>Attendance</td><td>Workday started</td></tr><tr><td class="mono">08:55</td><td>Payroll Admin</td><td>Published payroll</td><td>Payroll</td><td>August 2026 batch</td></tr><tr><td class="mono">08:21</td><td>System</td><td>Login successful</td><td>Authentication</td><td>Priya Sharma • Chrome</td></tr></table></div></div>
+</div></div>
+
+<!-- COPILOT -->
+<label for="copilot-toggle" class="copilot-fab">✦</label><label for="copilot-toggle" class="copilot-overlay"></label>
+<div class="copilot-panel"><div class="cp-header"><div><div class="cpt">DAYFLOW Copilot</div><div class="cps">Workplace assistant • Demo</div></div><label for="copilot-toggle" class="btn btn-ghost btn-sm">✕</label></div><div class="cp-body">
+<div class="cp-suggestion">What is my leave balance?</div><div class="cp-suggestion">Show my attendance this month.</div><div class="cp-suggestion">Which department has the highest attendance?</div><div class="cp-suggestion">How many employees are on leave?</div>
+<div class="empty-state"><strong>Ask about your workday</strong>Copilot is a prototype interface for the DAYFLOW demo.</div>
+</div><div class="cp-input"><input placeholder="Ask DAYFLOW..."><button class="btn btn-primary btn-sm">Send</button></div></div>
+
+<!-- COMMAND PALETTE -->
+<div class="cmd-wrap"><div class="cmd-box"><div class="cmd-input-wrap"><span>⌕</span><input id="global-search" autocomplete="off" placeholder="Search pages, employees, leave, payroll..."><span class="kbd">Esc</span></div><div class="cmd-results" id="cmd-results">
+<div class="cmd-group">Employee</div>
+<label for="p-emp-dash" class="cmd-item"><span>▦</span><span>My Workday</span></label><label for="p-profile" class="cmd-item"><span>◎</span><span>My Profile</span></label><label for="p-attendance" class="cmd-item"><span>◷</span><span>Attendance</span></label><label for="p-leave" class="cmd-item"><span>▣</span><span>Leave &amp; Time Off</span></label><label for="p-payroll" class="cmd-item"><span>₹</span><span>Payroll</span></label><label for="p-documents" class="cmd-item"><span>▤</span><span>Documents</span></label><label for="p-notifications" class="cmd-item"><span>●</span><span>Notifications</span></label>
+<div class="cmd-group">HR Admin</div>
+<label for="p-hr-dash" class="cmd-item"><span>⌁</span><span>Workforce Pulse</span></label><label for="p-employees" class="cmd-item"><span>◎</span><span>Employees</span></label><label for="p-hr-leave" class="cmd-item"><span>✓</span><span>Leave Management</span></label><label for="p-hr-payroll" class="cmd-item"><span>₹</span><span>Payroll Management</span></label><label for="p-reports" class="cmd-item"><span>▥</span><span>Reports &amp; Analytics</span></label><label for="p-announcements" class="cmd-item"><span>▱</span><span>Announcements</span></label><label for="p-audit" class="cmd-item"><span>◈</span><span>Audit Logs</span></label>
+<div class="search-empty" id="search-empty">No matching DAYFLOW pages.</div>
+</div></div></div>
+
+</div><!-- /.main -->
+</div><!-- /.shell -->
+</div><!-- /.app -->
+<script>
+(function(){
+const pageIds=['p-login','p-signup','p-verify','p-forgot','p-emp-dash','p-profile','p-attendance','p-leave','p-payroll','p-documents','p-notifications','p-hr-dash','p-employees','p-hr-leave','p-hr-payroll','p-reports','p-announcements','p-audit'];
+let historyStack=['p-login'],suppress=false;
+const showToast=(msg)=>{let t=document.querySelector('.toast');if(!t){t=document.createElement('div');t.className='toast';document.body.appendChild(t)}t.textContent=msg;t.classList.add('show');clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove('show'),2200)};
+pageIds.forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',()=>{if(!suppress&&el.checked&&historyStack.at(-1)!==id)historyStack.push(id)})});
+document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',()=>{if(historyStack.length>1)historyStack.pop();const prev=historyStack.at(-1)||'p-login';suppress=true;document.getElementById(prev).checked=true;suppress=false}));
+const cmd=document.getElementById('cmd-toggle'),wrap=document.querySelector('.cmd-wrap'),input=document.getElementById('global-search'),empty=document.getElementById('search-empty');
+function filter(q){q=q.trim().toLowerCase();let n=0;document.querySelectorAll('.cmd-item').forEach(x=>{const ok=!q||x.textContent.toLowerCase().includes(q);x.style.display=ok?'flex':'none';if(ok)n++});document.querySelectorAll('.cmd-group').forEach(g=>{let x=g.nextElementSibling,has=false;while(x&&!x.classList.contains('cmd-group')&&!x.classList.contains('search-empty')){if(x.classList.contains('cmd-item')&&x.style.display!=='none')has=true;x=x.nextElementSibling}g.style.display=has?'block':'none'});if(empty)empty.style.display=n?'none':'block'}
+function openSearch(){cmd.checked=true;wrap.classList.add('open');setTimeout(()=>input&&input.focus(),20)}
+function closeSearch(){cmd.checked=false;wrap.classList.remove('open');if(input){input.value='';filter('')}}
+document.querySelectorAll('.tb-search').forEach(x=>x.addEventListener('click',openSearch));input&&input.addEventListener('input',e=>filter(e.target.value));document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openSearch()}if(e.key==='Escape'&&cmd.checked)closeSearch()});wrap&&wrap.addEventListener('click',e=>{if(e.target===wrap)closeSearch()});document.querySelectorAll('.cmd-item').forEach(x=>x.addEventListener('click',()=>setTimeout(closeSearch,0)));
+document.querySelectorAll('.sb-logout').forEach(x=>x.addEventListener('click',()=>{historyStack=['p-login'];showToast('Signed out successfully')}));
+const checkout=document.querySelector('.btn-checkout-main');if(checkout)checkout.addEventListener('click',()=>{checkout.textContent='✓ Checked Out';checkout.disabled=true;checkout.style.opacity='.75';showToast('Check-out recorded successfully.')});
+window.DAYFLOW={showToast,openSearch,closeSearch};
+})();
+</script>
+</body>
+</html>
