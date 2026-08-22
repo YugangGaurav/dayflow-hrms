@@ -1,0 +1,22 @@
+{
+  "name": "dayflow-hrms",
+  "version": "1.0.0",
+  "description": "Dayflow HRMS — Human Resource Management System",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "create-demo-users": "node scripts/create-demo-users.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.45.4"
+  },
+  "devDependencies": {
+    "vite": "5.4.19"
+  },
+  "allowScripts": {
+    "esbuild@0.21.5": true
+  }
+}
